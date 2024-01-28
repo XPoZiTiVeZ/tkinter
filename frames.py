@@ -98,17 +98,32 @@ def create_admin_window(master):
 
 
 def Cntrea(tree,name):
-    tree.column(name, anchor="center")
+    tree.column(name, width=900//5-3, anchor="center")
     
 
 def create_director_window(master):
-    frm_dir= ttk.Frame(master=master,
-                        width = 960,
-                        height = 540)
+    frm_dir= ttk.Frame(
+        master=master,
+        name="frm_director_window",
+        width = 900,
+        height = 400,
+    )
 
+    frm_tree = ttk.Frame(
+        master=frm_dir,
+        name="frm_treeview",
+        borderwidth=1,
+        relief="solid",
+    )
 
-    columns = ("num", "name", "product","quantity","time")
-    tree = ttk.Treeview(master=frm_dir,columns=columns, show="headings")
+    columns = ("id", "num", "name", "product","quantity","time")
+    tree = ttk.Treeview(
+        master=frm_tree,
+        name="trv_product",
+        columns=columns,
+        displaycolumns=columns[1:],
+        show="headings",
+    )
     for col in columns: Cntrea(tree,col)
 
     tree.heading("num", text="Номер заказа")
@@ -118,23 +133,31 @@ def create_director_window(master):
     tree.heading("time", text="Оставшийся срок")
 
 
-    for string in Product.All(): 
-        tree.insert("", tk.END, values=string)
+    for i, string in enumerate(Product.All()): 
+        tree.insert("", tk.END, values=string, tag="odd" if i%2 else "even")
 
-    scrollbar = ttk.Scrollbar(orient=tk.VERTICAL, command=tree.yview, master = tree)
-    tree.config(yscrollcommand=scrollbar.set)
+    tree.tag_configure('odd', background='#E8E8E8')
+    tree.tag_configure('even', background='#DFDFDF')
+
+    scrollbar = ttk.Scrollbar(
+        master=frm_tree, 
+        orient ="vertical", 
+        command = tree.yview,
+    )
+    
+    scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+    tree.configure(yscrollcommand=scrollbar.set)
 
     add_bt = ttk.Button(master =frm_dir,text ="Добавить", name = "btn_open_add")
     edit_bt = ttk.Button(master =frm_dir,text ="Изменить", name = "btn_edit"  ) 
     del_bt = ttk.Button(master =frm_dir,text = "Удалить", name = "btn_del")
 
-
+    frm_tree.pack(fill=tk.Y, expand=True)
     tree.pack(fill=tk.Y, expand=True)
     add_bt.pack(side=tk.LEFT)
     edit_bt.pack(side=tk.LEFT)
     del_bt.pack(side=tk.LEFT)
-    # scrollbar.pack(side=tk.RIGHT, fill=tk.Y, in_=frm_dir)
-    
+   
 
     return frm_dir
 
@@ -178,3 +201,26 @@ def create_add_window(master):
     ok_bt.pack()
 
     return frm_add
+
+def create_edit_window(master):
+    frm_edit= ttk.Frame(
+        master=master,
+        name="frm_add_window",
+        width = 640,
+        height = 320
+        )
+    
+    NewBlock(frm_edit,"Номер заказа", "num")
+    NewBlock(frm_edit,"Название товара", "prod")
+    NewBlock(frm_edit,"Количество", "quantity")
+    NewBlock(frm_edit,"Дата отгрузки", "time")
+    NewBlock(frm_edit,"Заказчик", "name")
+
+    ok_bt = ttk.Button(
+        master=frm_edit,
+        text ="Принять",
+        name="btn_edit"
+        )
+    ok_bt.pack()
+
+    return frm_edit

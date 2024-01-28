@@ -41,11 +41,25 @@ class Product(Base):
     def All():
         prodlist=[]
         for a in session.query(Product).all():
-          prodlist.append([a.num, a.name, a.product, a.quantity, a.time ])
+          prodlist.append([a.id, a.num, a.name, a.product, a.quantity, a.time ])
         return prodlist
     
     def Add(**kwargs):
         session.add(Product(**kwargs))
+        session.commit()
+    
+    def Edit(id, num, name, product, quantity, time):
+        edit_product = session.query(Product).get(id)
+        edit_product.num = num
+        edit_product.name = name
+        edit_product.product = product
+        edit_product.quantity = quantity
+        edit_product.time = time
+        session.commit()
+    
+    def Delete(id):
+        product = session.query(Product).get(id)
+        session.delete(product)
         session.commit()
 
 Base.metadata.create_all(engine)
